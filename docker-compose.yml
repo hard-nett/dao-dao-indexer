@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: dao_indexer
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: daodao_indexer
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - daodao-network
+
+  indexer:
+    build: .
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://dao_indexer:example@postgres:5432/daodao_indexer
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config.json:/usr/src/app/config.json
+    networks:
+      - daodao-network
+
+volumes:
+  postgres_data:
+
+networks:
+  daodao-network:
